@@ -1,0 +1,6 @@
+{
+  "0": "LOCK_SCREEN",
+  "1": "OPEN_FIREFOX",
+  "2": "SUSPEND",
+  "3": "UNLOCK_SESSION"
+}

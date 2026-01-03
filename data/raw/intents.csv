@@ -1,0 +1,32 @@
+text,intent
+me voy del ordenador,LOCK_SCREEN
+me voy,LOCK_SCREEN
+voy a salir,LOCK_SCREEN
+bloqueame la pantalla,LOCK_SCREEN
+cierra sesion,LOCK_SCREEN
+quiero irme,LOCK_SCREEN
+apaga mi ordenador,LOCK_SCREEN
+bloquea la pantalla,LOCK_SCREEN
+abre firefox,OPEN_FIREFOX
+abre el navegador,OPEN_FIREFOX
+quiero abrir firefox,OPEN_FIREFOX
+lanza firefox,OPEN_FIREFOX
+abre un navegador,OPEN_FIREFOX
+necesito un navegador,OPEN_FIREFOX
+navegador,OPEN_FIREFOX
+firefox,OPEN_FIREFOX
+suspender,SUSPEND
+dormir,SUSPEND
+descansa,SUSPEND
+quiero dormir,SUSPEND
+entra en reposo,SUSPEND
+pausa,SUSPEND
+ven aqui,SUSPEND
+desbloquea la sesion,UNLOCK_SESSION
+desbloquea,UNLOCK_SESSION
+abre la sesion,UNLOCK_SESSION
+activa la pantalla,UNLOCK_SESSION
+necesito trabajar,UNLOCK_SESSION
+quiero acceder,UNLOCK_SESSION
+abre el ordenador,UNLOCK_SESSION
+hazme visible,UNLOCK_SESSION

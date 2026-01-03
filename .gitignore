@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Models (entrenados, se pueden regenerar)
+models/*.pkl
+data/processed/*.npy
+
+# Carpetas vacías (expansión futura)
+config/
+scripts/
+
+# Tests y ejemplos (solo para desarrollo)
+src/nlp/examples.py
+src/nlp/test_predict.py
+
+# Logs
+*.log

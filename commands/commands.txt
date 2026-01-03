@@ -1,0 +1,4 @@
+LOCK_SCREEN = loginctl lock-session
+OPEN_FIREFOX = firefox
+SUSPEND = systemctl suspend
+UNLOCK_SESSION = loginctl unlock-session

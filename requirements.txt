@@ -1,0 +1,26 @@
+# Core dependencies for Aurora Assistant
+
+# NLP & ML
+scikit-learn>=1.0.0       # ML models (LogisticRegression), TfidfVectorizer
+joblib>=1.0.0             # Model serialization
+numpy>=1.20.0             # Numerical computing
+pandas>=1.3.0             # Data manipulation (for training)
+
+# Configuration
+pyyaml>=5.4               # YAML config files
+
+# Audio
+scipy>=1.7.0              # Audio processing
+soundfile>=0.10.0         # Audio I/O
+
+# Logging & utilities
+python-json-logger>=2.0   # JSON logging
+
+# Testing
+pytest>=6.2.0             # Test framework
+pytest-cov>=2.12.0        # Coverage reporting
+
+# Development
+black>=21.0                # Code formatting
+pylint>=2.8.0             # Linting
+mypy>=0.9                 # Type checking

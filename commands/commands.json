@@ -1,0 +1,18 @@
+{
+  "LOCK_SCREEN": {
+    "cmd": "loginctl lock-session",
+    "danger": "unknown"
+  },
+  "OPEN_FIREFOX": {
+    "cmd": "firefox",
+    "danger": "unknown"
+  },
+  "SUSPEND": {
+    "cmd": "systemctl suspend",
+    "danger": "unknown"
+  },
+  "UNLOCK_SESSION": {
+    "cmd": "loginctl unlock-session",
+    "danger": "unknown"
+  }
+}
