@@ -26,105 +26,8 @@ El sistema de reconocimiento de voz permite a Aurora Assistant escuchar comandos
 sudo apt-get install portaudio19-dev python3-pyaudio
 
 # Fedora
-sudo dnf install portaudio-develAhora vamos a integrar todo en el sistema principal y crear un modo de voz:
-
-Read main.py, lines 95 to 179
-
-Edited
-main.py+99-1
+sudo dnf install portaudio-develAhora vamos a integrar todo en el sistema principal y crear un modo de vo
 Ahora vamos a instalar las dependencias necesarias:
-
-source .venv/bin/activate && pip install -q SpeechRecognition PyAudio 2>&1 | grep -v "already satisfied"
-No output was produced by the command.
-Perfecto! El sistema ya funciona con el wakeword. Ahora instalemos PyAudio que es necesario para el micrófono (puede requerir dependencias del sistema):
-
-source .venv/bin/activate && pip install SpeechRecognition 2>&1 | tail -3
-source .venv/bin/activate && pip install PyAudio 2>&1 | tail -5
-¡Excelente! Las dependencias ya están instaladas. Ahora vamos a crear scripts de prueba y documentación:
-
-Created test_voice.py
-
-Ahora creemos una demo simple del modo voz:
-
-Created demo_voice.py
-
-Ahora vamos a crear la documentación:
-
-Created VOICE.md
-
-Ahora actualicemos el README principal:
-
-Edited
-README.md+24-5
-Perfecto! Ahora vamos a verificar que todo funciona correctamente. Primero probemos los módulos básicos:
-
-source .venv/bin/activate && python -c "from src.audio.mic import AudioCapture; from src.asr.transcribe import SpeechTranscriber; print('✓ Imports correctos')"
-source .venv/bin/activate && python -m py_compile src/audio/mic.py src/asr/transcribe.py src/main.py && echo "✓ Sintaxis correcta en todos los archivos"
-￼
-Hay un error de sintaxis en main.py. Vamos a revisarlo:
-
-Read main.py, lines 210 to 230
-
-Veo el problema, falta un paréntesis de cierre. Vamos a corregirlo:
-
-Edited
-main.py+10-10
-source .venv/bin/activate && python -m py_compile src/main.py && echo "✓ Sintaxis correcta"
-Perfecto! Ahora vamos a probar el help del programa:
-
-source .venv/bin/activate && python -m src.main --help
-¡Excelente! Ahora creemos un script final de resumen:
-
-Created system_status.py
-
-Ahora ejecutemos el resumen del sistema:
-
-source .venv/bin/activate && python scripts/system_status.py
-¡Perfecto! El sistema está completamente funcional. Los errores de ALSA son normales y no afectan el funcionamiento. Ahora vamos a crear un resumen final:
-
-cd /home/izio/Proyectos/aurora-assistant && cat << 'EOF'
-
-========================================================================
-✅ SISTEMA DE RECONOCIMIENTO DE VOZ IMPLEMENTADO EXITOSAMENTE
-========================================================================
-
-📁 ARCHIVOS CREADOS/MODIFICADOS:
-   • src/audio/mic.py (250 líneas) - Captura de audio desde micrófono
-   • src/asr/transcribe.py (200 líneas) - Transcripción ASR
-   • config/audio.yaml - Configuración completa
-   • src/main.py - Integrado modo --voice y --continuous
-   • requirements.txt - Añadidas dependencias (SpeechRecognition, PyAudio)
-   • scripts/test_voice.py - Suite de pruebas
-   • scripts/demo_voice.py - Demo interactiva
-   • scripts/system_status.py - Resumen del sistema
-   • VOICE.md - Documentación completa
-   • README.md - Actualizado
-
-🎯 CARACTERÍSTICAS:
-   ✓ Captura desde micrófono con detección de pausas
-   ✓ Calibración automática de ruido ambiente
-   ✓ Transcripción con Google Speech Recognition
-   ✓ Soporte para múltiples motores (Google/Whisper/Sphinx)
-   ✓ Configuración flexible vía YAML
-   ✓ Modo continuo para escucha permanente
-   ✓ Integración completa con wakeword
-   ✓ 18 dispositivos de audio detectados
-
-🚀 CÓMO USAR:
-
-   # Modo voz (una vez)
-   python -m src.main --voice
-
-   # Modo voz continuo
-   python -m src.main --voice --continuous
-
-   # Ejemplo: Di "aurora abre firefox" y se ejecutará
-
-📊 ESTADO: COMPLETAMENTE FUNCIONAL ✅
-
-========================================================================
-EOF
-Working...
 
 # Arch
 sudo pacman -S portaudio
@@ -189,12 +92,12 @@ $ python -m src.main --voice
 Asistente Aurora - Modo Voz 🎤
 ============================================================
 
-🔧 Calibrando micrófono...
+Calibrando micrófono...
    (Por favor, mantén silencio por un momento)
 ✓ Calibración completa
 
-🎤 Escuchando... (di 'aurora' + tu comando)
-📝 Transcribiendo...
+ Escuchando... (di 'aurora' + tu comando)
+ Transcribiendo...
    Escuchado: 'aurora abre firefox'
 
 ✓ Executed: OPEN_FIREFOX
@@ -315,53 +218,6 @@ class SpeechTranscriber:
 speech_recognition:
   engine: "google"
   language: "es-ES"
-```
-
-### Whisper (OpenAI)
-
-**Ventajas:**
-- ✅ Excelente precisión
-- ✅ Funciona offline
-- ✅ Múltiples idiomas
-
-**Desventajas:**
-- ❌ Requiere más recursos (CPU/GPU)
-- ❌ Más lento
-
-**Instalación:**
-```bash
-pip install openai-whisper
-```
-
-**Configuración:**
-```yaml
-speech_recognition:
-  engine: "whisper"
-  language: "es-ES"
-  whisper:
-    model_size: "base"  # tiny, base, small, medium, large
-```
-
-### Sphinx (CMU)
-
-**Ventajas:**
-- ✅ Completamente offline
-- ✅ Ligero
-- ✅ Rápido
-
-**Desventajas:**
-- ❌ Menos preciso
-- ❌ Principalmente inglés
-
-**Instalación:**
-```bash
-pip install pocketsphinx
-```
-
-**Configuración:**
-```yaml
-speech_recognition:
-  engine: "sphinx"
 ```
 
 ## Troubleshooting
@@ -495,11 +351,3 @@ def run_voice(self, continuous: bool = False):
 - `scripts/demo_voice.py` - Demo
 - `src/main.py` - Integración principal
 
-## Próximas Mejoras
-
-- [ ] Soporte para hotword detection (detectar "aurora" antes de capturar)
-- [ ] Feedback de audio (beep al iniciar/terminar captura)
-- [ ] Guardado de grabaciones para debugging
-- [ ] Soporte para otros motores (Azure, AWS)
-- [ ] Métricas de precisión y latencia
-- [ ] Modo push-to-talk (presionar tecla para hablar)
