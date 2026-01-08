@@ -1,3 +1,5 @@
+(Gracias copilot por la documentación, descripciones, y algún que otro manejo de errores 😛)
+
 # Aurora Assistant
 
 Asistente inteligente que detecta intenciones del usuario y ejecuta comandos del sistema de forma segura.
@@ -20,14 +22,16 @@ python -m src.main "abre firefox"
 - **[GUIDE.md](GUIDE.md)** - Guía completa (arquitectura, funcionamiento, instalación)
 - **[ADDING_COMMANDS.md](ADDING_COMMANDS.md)** - Cómo agregar comandos nuevos (workflow paso a paso)
 - **[SCRIPTS.md](SCRIPTS.md)** - Referencia de scripts (qué hace cada uno)
+- **[WAKEWORD.md](WAKEWORD.md)** - Sistema de palabra de activación "aurora"
+- **[VOICE.md](VOICE.md)** - Sistema de reconocimiento de voz (micrófono → texto)
 
 ## 🏗️ Arquitectura
 
 ```
-Texto Usuario → predict.py → router.py → executor.py → Comando Ejecutado
-                   ↓            ↓            ↓
-                Intent +    Decisión    Ejecución
-               Confianza   (0.40-0.75)   Segura
+VOZ: Micrófono → ASR → Texto → [Wakeword] → predict.py → router.py → executor.py
+                                 ↓         ↓            ↓            ↓            ↓
+                          Transcribe  Elimina      Intent +    Decisión    Ejecución
+                                          "aurora"    Confianza   (0.40-0.75)   Segura
 ```
 
 ## 🎯 Componentes Principales
@@ -45,10 +49,19 @@ src/
 ```
 
 ## 🚀 Uso
+# Modo voz (desde micrófono)
+python -m src.main --voice
+
+# Modo voz continuo (escucha permanente)
+python -m src.main --voice --continuous
+
 
 ```bash
 # Comando único
 python -m src.main "abre firefox"
+
+# Con wakeword (se elimina automáticamente)
+python -m src.main "aurora abre firefox"  # Procesa: "abre firefox"
 
 # Modo interactivo
 python -m src.main
@@ -56,6 +69,35 @@ python -m src.main
 # Con umbrales personalizados
 python -m src.main "texto" --auto-threshold 0.60
 ```
+
+## 🎙️ Wakeword (Palabra de Activación)
+
+El sistema incluye procesamiento automático del wakeword "aurora":
+
+```bash
+# Probar el procesador de wakeword
+py~~Añadir Wake-on-call~~ ✅ Implementado (ver WAKEWORD.md)akeword "aurora abre firefox"
+
+# Demo interactiva
+python scripts/demo_wakeword.py
+
+# Tests completos
+python scripts/test_wakeword.py
+
+## 🎤 Reconocimiento de Voz
+
+El sistema incluye captura desde micrófono y transcripción automática:
+
+```bash
+# Demo de voz
+python scripts/demo_voice.py
+
+# Tests de sistema de voz
+python scripts/test_voice.py
+```
+```
+
+Ver [WAKEWORD.md](WAKEWORD.md) para más detalles.
 
 ## 📖 Más Información
 
@@ -65,6 +107,7 @@ python -m src.main "texto" --auto-threshold 0.60
 
 
 ## TODO
-- Añadir reconocimiento de voz
+- ~~Añadir reconocimiento de voz~~ ✅ (ver VOICE.md)
+    - Añadir reconocimiento de UNA sola voz.
 - Añadir Wake-on-call
 - Añadir algún tipo de "peligro" en los comandos, para pedir más o menos confianza

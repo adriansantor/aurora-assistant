@@ -12,6 +12,9 @@ pyyaml>=5.4               # YAML config files
 # Audio
 scipy>=1.7.0              # Audio processing
 soundfile>=0.10.0         # Audio I/O
+SpeechRecognition>=3.10.0 # Speech recognition library
+pyaudio>=0.2.13           # Audio input/output
+pydub>=0.25.1             # Audio processing utilities
 
 # Logging & utilities
 python-json-logger>=2.0   # JSON logging

@@ -5,8 +5,37 @@ voy a salir,LOCK_SCREEN
 bloqueame la pantalla,LOCK_SCREEN
 cierra sesion,LOCK_SCREEN
 quiero irme,LOCK_SCREEN
+me alejo de la pantalla,LOCK_SCREEN
+me voy del teclado,LOCK_SCREEN
 apaga mi ordenador,LOCK_SCREEN
 bloquea la pantalla,LOCK_SCREEN
+voy a almorzar,LOCK_SCREEN
+me voy a la cocina,LOCK_SCREEN
+ahora me voy,LOCK_SCREEN
+hasta luego,LOCK_SCREEN
+me ausentaré,LOCK_SCREEN
+bloquéame,LOCK_SCREEN
+cierra todo,LOCK_SCREEN
+no vuelvo en rato,LOCK_SCREEN
+vuelvo en un rato,LOCK_SCREEN
+me ausento,LOCK_SCREEN
+pausa,LOCK_SCREEN
+en un momento,LOCK_SCREEN
+dame privacidad,LOCK_SCREEN
+protege mi pantalla,LOCK_SCREEN
+quiero privacidad,LOCK_SCREEN
+encripta la sesión,LOCK_SCREEN
+deja de trabajar,LOCK_SCREEN
+tómate un descanso,LOCK_SCREEN
+lock,LOCK_SCREEN
+bloquea todo,LOCK_SCREEN
+me voy de la pantalla,LOCK_SCREEN
+me alejo de la pantalla,LOCK_SCREEN
+me voy del monitor,LOCK_SCREEN
+me voy del escritorio,LOCK_SCREEN
+me voy de aqui,LOCK_SCREEN
+tengo que irme,LOCK_SCREEN
+me tengo que ir,LOCK_SCREEN
 abre firefox,OPEN_FIREFOX
 abre el navegador,OPEN_FIREFOX
 quiero abrir firefox,OPEN_FIREFOX
@@ -15,6 +44,27 @@ abre un navegador,OPEN_FIREFOX
 necesito un navegador,OPEN_FIREFOX
 navegador,OPEN_FIREFOX
 firefox,OPEN_FIREFOX
+abre chrome,OPEN_FIREFOX
+quiero navegar,OPEN_FIREFOX
+tengo que buscar algo,OPEN_FIREFOX
+abre internet,OPEN_FIREFOX
+quiero ir a internet,OPEN_FIREFOX
+lanza el navegador,OPEN_FIREFOX
+necesito buscar,OPEN_FIREFOX
+muéstrame google,OPEN_FIREFOX
+abre la web,OPEN_FIREFOX
+quiero ver páginas web,OPEN_FIREFOX
+accede a internet,OPEN_FIREFOX
+abre un navegador web,OPEN_FIREFOX
+necesito navegador,OPEN_FIREFOX
+inicia firefox,OPEN_FIREFOX
+activame firefox,OPEN_FIREFOX
+quiero ver youtube,OPEN_FIREFOX
+necesito el navegador,OPEN_FIREFOX
+abre safari,OPEN_FIREFOX
+navegador web,OPEN_FIREFOX
+tengo que navegar,OPEN_FIREFOX
+quiero explorar internet,OPEN_FIREFOX
 suspender,SUSPEND
 dormir,SUSPEND
 descansa,SUSPEND
@@ -22,6 +72,26 @@ quiero dormir,SUSPEND
 entra en reposo,SUSPEND
 pausa,SUSPEND
 ven aqui,SUSPEND
+quiero dormir el ordenador,SUSPEND
+duerme,SUSPEND
+descansa el equipo,SUSPEND
+modo de reposo,SUSPEND
+quiero descansar,SUSPEND
+pasa a reposo,SUSPEND
+suspende ahora,SUSPEND
+quiero que duerma,SUSPEND
+entra en modo reposo,SUSPEND
+quiero parar,SUSPEND
+detenlo,SUSPEND
+apaga temporalmente,SUSPEND
+modo sleep,SUSPEND
+reposo,SUSPEND
+que duerman los ventiladores,SUSPEND
+enfría el sistema,SUSPEND
+ve a dormir,SUSPEND
+ponlo en reposo,SUSPEND
+parada,SUSPEND
+quiero que descanses,SUSPEND
 desbloquea la sesion,UNLOCK_SESSION
 desbloquea,UNLOCK_SESSION
 abre la sesion,UNLOCK_SESSION
@@ -30,3 +100,25 @@ necesito trabajar,UNLOCK_SESSION
 quiero acceder,UNLOCK_SESSION
 abre el ordenador,UNLOCK_SESSION
 hazme visible,UNLOCK_SESSION
+despierta,UNLOCK_SESSION
+actívate,UNLOCK_SESSION
+quiero entrar,UNLOCK_SESSION
+déjame pasar,UNLOCK_SESSION
+necesito acceso,UNLOCK_SESSION
+quiero volver,UNLOCK_SESSION
+vuelvo a trabajar,UNLOCK_SESSION
+activa el equipo,UNLOCK_SESSION
+enciende la pantalla,UNLOCK_SESSION
+unlock,UNLOCK_SESSION
+desbloquéame,UNLOCK_SESSION
+dame acceso,UNLOCK_SESSION
+quiero continuar,UNLOCK_SESSION
+reanuda,UNLOCK_SESSION
+necesito continuar,UNLOCK_SESSION
+quiero seguir trabajando,UNLOCK_SESSION
+déjame entrar,UNLOCK_SESSION
+autorízame,UNLOCK_SESSION
+actívalo,UNLOCK_SESSION
+vuelvo,UNLOCK_SESSION
+quiero volver a trabajar,UNLOCK_SESSION
+necesito la pantalla,UNLOCK_SESSION

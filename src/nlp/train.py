@@ -107,9 +107,6 @@ def train_model(
     except Exception as e:
         raise TrainingError(f"Entrenamiento del modelo fallido: {e}")
     
-    # Verificar que el modelo soporta predict_proba
-    if not hasattr(model, 'predict_proba'):
-        raise TrainingError("El modelo no soporta predict_proba")
     
     return vectorizer, model, label_map, X, y
 
@@ -184,7 +181,7 @@ def train_and_save(
     csv_path: str = None,
     output_dir: str = None,
 ) -> dict:
-    """Pipeline completo de entrenamiento: cargar → entrenar → guardar. Lanza TrainingError si falla algún paso."""
+    """Pipeline completo de entrenamiento: cargar, entrenar, guardar. Lanza TrainingError si falla algún paso."""
     if csv_path is None:
         csv_path = Path(__file__).parent.parent.parent / "data" / "raw" / "intents.csv"
     
@@ -222,7 +219,7 @@ def main():
         artifacts = train_and_save(csv_path, output_dir)
         
         logger.info("\n" + "="*60)
-        logger.info("✓ ¡Entrenamiento completado exitosamente!")
+        logger.info("[OK] Entrenamiento completado exitosamente!")
         logger.info("="*60)
         logger.info("\nArtefactos guardados:")
         for name, path in artifacts.items():
@@ -232,10 +229,10 @@ def main():
         return 0
         
     except TrainingError as e:
-        logger.error(f"\n✗ Entrenamiento fallido: {e}")
+        logger.error(f"\n[ERROR] Entrenamiento fallido: {e}")
         return 1
     except Exception as e:
-        logger.error(f"\n✗ Error inesperado: {e}")
+        logger.error(f"\n[ERROR] Error inesperado: {e}")
         return 1
 
 

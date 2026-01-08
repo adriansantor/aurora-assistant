@@ -16,8 +16,7 @@ FORBIDDEN_TOKENS = {
 
 def is_safe_command(cmd: str) -> bool:
     """
-    Verificación de seguridad muy conservadora.
-    Esto NO garantiza seguridad, solo rechaza abusos obvios.
+    Verificación de seguridad BÁSICA
     """
     for token in FORBIDDEN_TOKENS:
         if token in cmd:

@@ -7,6 +7,9 @@ from pathlib import Path
 from src.nlp.predict import predict, PredictError
 from src.core.executor import CommandExecutor, CommandExecutionError, CommandNotAllowedError
 from src.core.router import CommandRouter, UserConfirmationRequired, ConfidenceTooLowError
+from src.audio.wakeword import remove_wakeword
+from src.audio.mic import get_capture, MicrophoneError
+from src.asr.transcribe import get_transcriber, TranscriptionError
 
 logging.basicConfig(
     level=logging.INFO,
@@ -45,9 +48,14 @@ class AuroraAssistant:
         """Procesar texto de entrada del usuario. Retorna True si ejecutado, False en caso contrario."""
         logger.info(f"Procesando: '{text}'")
         
+        # Paso 0: Eliminar wakeword si está presente
+        clean_text = remove_wakeword(text)
+        if clean_text != text:
+            logger.debug(f"Wakeword eliminado: '{text}' -> '{clean_text}'")
+        
         # Paso 1: Predecir intención
         try:
-            intent_result = predict(text)
+            intent_result = predict(clean_text)
             logger.info(f"Predicho: {intent_result}")
         except PredictError as e:
             logger.error(f"Predicción fallida: {e}")
@@ -57,13 +65,13 @@ class AuroraAssistant:
         # Paso 2: Enrutar (decidir: ejecutar o pedir confirmación)
         try:
             self.router.route(intent_result)
-            logger.info(f"✓ Comando ejecutado: {intent_result.intent_id}")
-            print(f"✓ Executed: {intent_result.intent_id}")
+            logger.info(f"Comando ejecutado: {intent_result.intent_id}")
+            print(f"Executed: {intent_result.intent_id}")
             return True
             
         except UserConfirmationRequired as e:
             logger.warning(f"Confirmación necesaria: {e}")
-            print(f"⚠ {e}")
+            print(f"Advertencia: {e}")
             print(f"   ¿Ejecutar '{intent_result.intent_id}'? (y/n)")
             
             # Pedir confirmación al usuario
@@ -71,8 +79,8 @@ class AuroraAssistant:
             if response in ('y', 'yes'):
                 try:
                     self.executor.execute(intent_result.intent_id)
-                    logger.info(f"✓ Comando ejecutado tras confirmación: {intent_result.intent_id}")
-                    print(f"✓ Ejecutado: {intent_result.intent_id}")
+                    logger.info(f"Comando ejecutado tras confirmación: {intent_result.intent_id}")
+                    print(f"Ejecutado: {intent_result.intent_id}")
                     return True
                 except (CommandExecutionError, CommandNotAllowedError) as e:
                     logger.error(f"Ejecución fallida: {e}")
@@ -115,6 +123,87 @@ class AuroraAssistant:
         """Ejecutar con una única entrada."""
         success = self.process_text(text)
         return 0 if success else 1
+    
+    def run_voice(self, continuous: bool = False) -> int:
+        """
+        Ejecutar en modo voz (captura desde micrófono).
+        Args:
+            continuous: Si True, escucha continuamente. Si False, solo una vez.
+        """
+        print("\n" + "="*60)
+        print("Asistente Aurora - Modo Voz")
+        print("="*60)
+        print("Comandos disponibles: " + ", ".join(self.executor.list_commands()))
+        
+        try:
+            # Inicializar captura y transcripción
+            capture = get_capture()
+            transcriber = get_transcriber()
+            
+            print(f"\nConfiguración:")
+            print(f"  - Motor de reconocimiento: {transcriber.engine}")
+            print(f"  - Idioma: {transcriber.language}")
+            print(f"  - Modo: {'Continuo' if continuous else 'Una vez'}")
+            
+            # Calibrar micrófono
+            print("\nCalibrando micrófono...")
+            capture.calibrate()
+            print("Calibración completa\n")
+            
+            if continuous:
+                print("Escuchando continuamente (Ctrl+C para salir)...")
+                print("-"*60 + "\n")
+            
+            while True:
+                try:
+                    # Capturar audio
+                    print("Escuchando... (di 'aurora' + tu comando)")
+                    audio = capture.listen(timeout=5, phrase_time_limit=10)
+                    
+                    print("Transcribiendo...")
+                    text = transcriber.transcribe(audio)
+                    print(f"   Escuchado: '{text}'\n")
+                    
+                    # Procesar comando
+                    self.process_text(text)
+                    print()
+                    
+                    if not continuous:
+                        break
+                    
+                except TimeoutError:
+                    if not continuous:
+                        print("Timeout: No se detectó voz\n")
+                        break
+                    else:
+                        # En modo continuo, simplemente reintentar
+                        continue
+                
+                except TranscriptionError as e:
+                    print(f"Error de transcripción: {e}\n")
+                    if not continuous:
+                        return 1
+                    # En modo continuo, continuar escuchando
+                    continue
+            
+            return 0
+            
+        except MicrophoneError as e:
+            print(f"\nError de micrófono: {e}")
+            print("\nConsejos:")
+            print("  - Verifica que tu micrófono esté conectado")
+            print("  - Revisa los permisos de audio")
+            print("  - Lista micrófonos con: python -m src.audio.mic")
+            return 1
+        
+        except KeyboardInterrupt:
+            print("\n\nAdiós!")
+            return 0
+        
+        except Exception as e:
+            logger.error(f"Error en modo voz: {e}")
+            print(f"\nError: {e}")
+            return 1
 
 
 def main():
@@ -128,6 +217,16 @@ def main():
         "text",
         nargs="?",
         help="Command text to process (if not provided, runs in interactive mode)"
+    )
+    parser.add_argument(
+        "--voice",
+        action="store_true",
+        help="Run in voice mode (listen from microphone)"
+    )
+    parser.add_argument(
+        "--continuous",
+        action="store_true",
+        help="Continuous listening mode (use with --voice)"
     )
     parser.add_argument(
         "--auto-threshold",
@@ -155,7 +254,10 @@ def main():
             commands_path=args.commands,
         )
         
-        if args.text:
+        if args.voice:
+            # Modo voz
+            return assistant.run_voice(continuous=args.continuous)
+        elif args.text:
             # Modo entrada única
             return assistant.run_single(args.text)
         else:
