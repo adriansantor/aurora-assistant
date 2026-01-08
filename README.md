@@ -74,28 +74,12 @@ python -m src.main "texto" --auto-threshold 0.60
 
 El sistema incluye procesamiento automático del wakeword "aurora":
 
-```bash
-# Probar el procesador de wakeword
-py~~Añadir Wake-on-call~~ ✅ Implementado (ver WAKEWORD.md)akeword "aurora abre firefox"
 
-# Demo interactiva
-python scripts/demo_wakeword.py
-
-# Tests completos
-python scripts/test_wakeword.py
 
 ## 🎤 Reconocimiento de Voz
 
 El sistema incluye captura desde micrófono y transcripción automática:
 
-```bash
-# Demo de voz
-python scripts/demo_voice.py
-
-# Tests de sistema de voz
-python scripts/test_voice.py
-```
-```
 
 Ver [WAKEWORD.md](WAKEWORD.md) para más detalles.
 
