@@ -7,6 +7,8 @@ from typing import Optional
 import speech_recognition as sr
 import yaml
 
+from src.audio.speaker_verify import get_verifier, SpeakerVerificationError
+
 logger = logging.getLogger(__name__)
 
 _transcriber: Optional['SpeechTranscriber'] = None
@@ -14,6 +16,11 @@ _transcriber: Optional['SpeechTranscriber'] = None
 
 class TranscriptionError(Exception):
     """Se lanza cuando falla la transcripción."""
+    pass
+
+
+class UnauthorizedSpeakerError(Exception):
+    """Se lanza cuando el hablante no está autorizado."""
     pass
 
 
@@ -28,7 +35,8 @@ class SpeechTranscriber:
         language: str = "es-ES",
         timeout: float = 10,
         phrase_time_limit: float = 10,
-        config_path: Optional[str] = None
+        config_path: Optional[str] = None,
+        verify_speaker: bool = False
     ):
         """
         Inicializar transcriptor con Google Speech Recognition.
@@ -38,6 +46,7 @@ class SpeechTranscriber:
             timeout: Tiempo maximo de espera (segundos)
             phrase_time_limit: Duracion maxima de frase (segundos)
             config_path: Ruta al archivo YAML
+            verify_speaker: Si True, verifica el hablante antes de transcribir
         """
         # Cargar configuración
         if config_path:
@@ -49,10 +58,23 @@ class SpeechTranscriber:
         
         self.recognizer = sr.Recognizer()
         self.engine = "google"
+        self.verify_speaker = verify_speaker
+        
+        # Inicializar verificador de hablante si está habilitado
+        if self.verify_speaker:
+            try:
+                self.speaker_verifier = get_verifier()
+                logger.info("Verificación de hablante habilitada")
+            except Exception as e:
+                logger.warning(f"No se pudo inicializar verificador de hablante: {e}")
+                self.speaker_verifier = None
+                self.verify_speaker = False
+        else:
+            self.speaker_verifier = None
         
         logger.info(
             f"SpeechTranscriber inicializado: engine=google, "
-            f"language={self.language}"
+            f"language={self.language}, verify_speaker={self.verify_speaker}"
         )
     
     def _load_config(self, config_path: Path):
@@ -78,19 +100,41 @@ class SpeechTranscriber:
             self.timeout = 10
             self.phrase_time_limit = 10
     
-    def transcribe(self, audio: sr.AudioData) -> str:
+    def transcribe(self, audio: sr.AudioData, skip_verification: bool = False) -> str:
         """
         Transcribir audio a texto.
         
         Args:
             audio: Datos de audio a transcribir
+            skip_verification: Si True, omite la verificación de hablante
             
         Returns:
             Texto transcrito
             
         Raises:
             TranscriptionError: Si la transcripcion falla
+            UnauthorizedSpeakerError: Si el hablante no está autorizado
         """
+        # Verificar hablante si está habilitado
+        if self.verify_speaker and not skip_verification and self.speaker_verifier:
+            try:
+                is_authorized, confidence = self.speaker_verifier.verify(audio)
+                
+                if not is_authorized:
+                    logger.warning(
+                        f"Hablante no autorizado (confianza={confidence:.3f})"
+                    )
+                    raise UnauthorizedSpeakerError(
+                        f"Hablante no autorizado. Confianza: {confidence:.3f}"
+                    )
+                
+                logger.info(f"Hablante autorizado (confianza={confidence:.3f})")
+                
+            except SpeakerVerificationError as e:
+                logger.error(f"Error en verificación de hablante: {e}")
+                # Continuar sin verificación si hay error
+                logger.warning("Continuando sin verificación de hablante")
+        
         try:
             logger.info("Transcribiendo con Google Speech Recognition...")
             text = self.recognizer.recognize_google(audio, language=self.language)
@@ -137,12 +181,13 @@ class SpeechTranscriber:
             raise TranscriptionError(f"Error del servicio: {e}")
 
 
-def get_transcriber(config_path: Optional[str] = None) -> SpeechTranscriber:
+def get_transcriber(config_path: Optional[str] = None, verify_speaker: bool = False) -> SpeechTranscriber:
     """
     Obtiene o crea el transcriptor por defecto.
     
     Args:
         config_path: Ruta al archivo de configuracion
+        verify_speaker: Si True, habilita verificación de hablante
         
     Returns:
         Instancia de SpeechTranscriber
@@ -152,7 +197,10 @@ def get_transcriber(config_path: Optional[str] = None) -> SpeechTranscriber:
         if config_path is None:
             base_dir = Path(__file__).parent.parent.parent
             config_path = base_dir / "config" / "audio.yaml"
-        _transcriber = SpeechTranscriber(config_path=str(config_path))
+        _transcriber = SpeechTranscriber(
+            config_path=str(config_path),
+            verify_speaker=verify_speaker
+        )
     return _transcriber
 
 

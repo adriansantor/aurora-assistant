@@ -9,7 +9,8 @@ from src.core.executor import CommandExecutor, CommandExecutionError, CommandNot
 from src.core.router import CommandRouter, UserConfirmationRequired, ConfidenceTooLowError
 from src.audio.wakeword import remove_wakeword
 from src.audio.mic import get_capture, MicrophoneError
-from src.asr.transcribe import get_transcriber, TranscriptionError
+from src.asr.transcribe import get_transcriber, TranscriptionError, UnauthorizedSpeakerError
+from src.audio.speaker_verify import get_verifier, SpeakerVerificationError
 
 logging.basicConfig(
     level=logging.INFO,
@@ -124,11 +125,12 @@ class AuroraAssistant:
         success = self.process_text(text)
         return 0 if success else 1
     
-    def run_voice(self, continuous: bool = False) -> int:
+    def run_voice(self, continuous: bool = False, verify_speaker: bool = False) -> int:
         """
         Ejecutar en modo voz (captura desde micrófono).
         Args:
             continuous: Si True, escucha continuamente. Si False, solo una vez.
+            verify_speaker: Si True, verifica que sea el hablante autorizado.
         """
         print("\n" + "="*60)
         print("Asistente Aurora - Modo Voz")
@@ -138,11 +140,12 @@ class AuroraAssistant:
         try:
             # Inicializar captura y transcripción
             capture = get_capture()
-            transcriber = get_transcriber()
+            transcriber = get_transcriber(verify_speaker=verify_speaker)
             
             print(f"\nConfiguración:")
             print(f"  - Motor de reconocimiento: {transcriber.engine}")
             print(f"  - Idioma: {transcriber.language}")
+            print(f"  - Verificación de hablante: {'Activada' if verify_speaker else 'Desactivada'}")
             print(f"  - Modo: {'Continuo' if continuous else 'Una vez'}")
             
             # Calibrar micrófono
@@ -170,6 +173,13 @@ class AuroraAssistant:
                     
                     if not continuous:
                         break
+                
+                except UnauthorizedSpeakerError as e:
+                    print(f"❌ {e}\n")
+                    if not continuous:
+                        return 1
+                    # En modo continuo, continuar escuchando
+                    continue
                     
                 except TimeoutError:
                     if not continuous:
@@ -204,6 +214,107 @@ class AuroraAssistant:
             logger.error(f"Error en modo voz: {e}")
             print(f"\nError: {e}")
             return 1
+    
+    def run_speaker_training(self, n_samples: int = 5) -> int:
+        """
+        Ejecutar modo entrenamiento de verificación de hablante.
+        
+        Args:
+            n_samples: Número de muestras de voz a capturar
+        """
+        print("\n" + "="*60)
+        print("Asistente Aurora - Entrenamiento de Hablante")
+        print("="*60)
+        print(f"Vamos a capturar {n_samples} muestras de tu voz")
+        print("Esto permitirá que Aurora reconozca solo tu voz\n")
+        
+        try:
+            # Inicializar captura y verificador
+            capture = get_capture()
+            verifier = get_verifier()
+            
+            print(f"Estado actual del modelo:")
+            print(f"  - Ya entrenado: {verifier.is_trained}")
+            print(f"  - Muestras previas: {verifier.n_samples}")
+            print(f"  - Umbral de confianza: {verifier.threshold}")
+            
+            if verifier.is_trained:
+                print(f"\nYa existe un modelo entrenado con {verifier.n_samples} muestras")
+                print("Las nuevas muestras se AÑADIRÁN al modelo existente\n")
+            else:
+                print("\nNo hay modelo previo. Creando nuevo modelo...\n")
+            
+            # Calibrar micrófono
+            print("Calibrando micrófono...")
+            capture.calibrate()
+            print("Calibración completa\n")
+            
+            # Capturar muestras
+            print("Instrucciones:")
+            print("  - Habla claramente cuando se te indique")
+            print("  - Di frases diferentes en cada muestra")
+            print("  - Ejemplos: 'Aurora abre el navegador', 'Aurora cuál es el clima'\n")
+            
+            input("Presiona Enter cuando estés listo para comenzar...")
+            print()
+            
+            successful_samples = 0
+            for i in range(n_samples):
+                try:
+                    print(f"Muestra {i+1}/{n_samples}")
+                    print("   Habla ahora (3-10 segundos)...")
+                    
+                    audio = capture.listen(timeout=5, phrase_time_limit=10)
+                    
+                    print("   Procesando muestra...")
+                    verifier.train(audio)
+                    
+                    successful_samples += 1
+                    print(f"   Muestra {i+1} registrada correctamente")
+                    print(f"   Total de muestras en el modelo: {verifier.n_samples}\n")
+                    
+                except TimeoutError:
+                    print(f"   Timeout - no se detectó voz")
+                    print(f"   Reintentando muestra {i+1}...\n")
+                    # No incrementar i, reintentar
+                    continue
+                
+                except SpeakerVerificationError as e:
+                    print(f"   Error al procesar muestra: {e}")
+                    print(f"   Reintentando muestra {i+1}...\n")
+                    continue
+                
+                except Exception as e:
+                    print(f"   Error inesperado: {e}")
+                    print(f"   Reintentando muestra {i+1}...\n")
+                    continue
+            
+            print("\n" + "="*60)
+            print("✅ ENTRENAMIENTO COMPLETADO")
+            print("="*60)
+            print(f"Muestras capturadas en esta sesión: {successful_samples}")
+            print(f"Total de muestras en el modelo: {verifier.n_samples}")
+            print(f"\nAhora puedes usar --single-voice para que Aurora")
+            print(f"solo responda a tu voz\n")
+            
+            return 0
+            
+        except MicrophoneError as e:
+            print(f"\nError de micrófono: {e}")
+            print("\nConsejos:")
+            print("  - Verifica que tu micrófono esté conectado")
+            print("  - Revisa los permisos de audio")
+            return 1
+        
+        except KeyboardInterrupt:
+            print("\n\nEntrenamiento interrumpido")
+            print(f"Muestras guardadas hasta ahora: {verifier.n_samples}")
+            return 0
+        
+        except Exception as e:
+            logger.error(f"Error en entrenamiento: {e}")
+            print(f"\nError: {e}")
+            return 1
 
 
 def main():
@@ -229,6 +340,27 @@ def main():
         help="Continuous listening mode (use with --voice)"
     )
     parser.add_argument(
+        "--single-voice",
+        action="store_true",
+        help="Enable speaker verification (only recognize trained voice)"
+    )
+    parser.add_argument(
+        "--all-voices",
+        action="store_true",
+        help="Disable speaker verification (recognize any voice) [default]"
+    )
+    parser.add_argument(
+        "--train-speaker",
+        action="store_true",
+        help="Enter speaker training mode (train voice recognition)"
+    )
+    parser.add_argument(
+        "--training-samples",
+        type=int,
+        default=5,
+        help="Number of voice samples to capture during training (default: 5)"
+    )
+    parser.add_argument(
         "--auto-threshold",
         type=float,
         default=0.75,
@@ -247,7 +379,21 @@ def main():
     
     args = parser.parse_args()
     
+    # Validar argumentos
+    if args.single_voice and args.all_voices:
+        print("Error: No puedes usar --single-voice y --all-voices al mismo tiempo")
+        return 1
+    
+    # Determinar si verificar hablante
+    verify_speaker = args.single_voice  # Por defecto False (all-voices)
+    
     try:
+        # Modo entrenamiento de hablante
+        if args.train_speaker:
+            assistant = AuroraAssistant()  # No necesitamos configurar nada más
+            return assistant.run_speaker_training(n_samples=args.training_samples)
+        
+        # Modos normales de operación
         assistant = AuroraAssistant(
             auto_execute_threshold=args.auto_threshold,
             confirmation_threshold=args.confirm_threshold,
@@ -256,7 +402,10 @@ def main():
         
         if args.voice:
             # Modo voz
-            return assistant.run_voice(continuous=args.continuous)
+            return assistant.run_voice(
+                continuous=args.continuous,
+                verify_speaker=verify_speaker
+            )
         elif args.text:
             # Modo entrada única
             return assistant.run_single(args.text)

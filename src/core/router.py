@@ -43,10 +43,10 @@ class CommandRouter:
         """
         Decide si ejecutar un comando basándose en la confianza.
 
-        Política:
-        - confianza >= auto_execute_threshold → ejecutar
-        - confirmation_threshold <= confianza < auto_execute_threshold → requiere confirmación
-        - confianza < confirmation_threshold → rechazar
+        Politica:
+        - confianza >= auto_execute_threshold: ejecutar
+        - confirmation_threshold <= confianza < auto_execute_threshold: requiere confirmacion
+        - confianza < confirmation_threshold: rechazar
         """
         if intent.confidence < self.confirmation_threshold:
             raise ConfidenceTooLowError(
